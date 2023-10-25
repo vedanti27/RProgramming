@@ -1,0 +1,157 @@
+---
+title: "Europe Crime Offense 2019 Analysis"
+author: 'Author : Vedanti Borate'
+---
+
+## Data Cleaning
+
+```{r lib ,echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)  
+library(GGally)
+
+```
+
+### Loading dataset
+
+Below we fetch the locally saved dataset and review the dataset structure.
+
+```{r dataclean}
+#set path
+  setwd("~/Documents/GitCodes/RProgramming")  
+
+#read csv file as table and stores in dataframe
+  crime2019<-read.csv("2_EurostatCrime2019.csv",header = TRUE,row.names = 1 )
+  
+# summarcrime2 and structure of data
+  nrow(crime2019)
+  ncol(crime2019)             
+  str(crime2019)
+```
+
+__Observations:__
+Dataframe with 41 rows and 13 columns.
+This shows that the object is a dataframe. It again repeats the number of rows and columns, and shows that
+all columns are numerical recordings of crime rates. Some NAs are visible too.
+
+
+## Data Manipulations
+
+Most countries sexual violence figures are the sum of rape and sexual assault. Removing these non required columns from dataset. For some countries Theft includes also burglary, and theft of motorised land vehicle, in others they are recorded separately. In order to compare the different countries, removing the columns involving theft and burglary as well.
+
+```{r datamanip1}
+crime2 <- subset(crime2019,
+                select = -c(Rape,
+                Sexual.assault))
+
+crime2019 <- subset(crime2019,
+                    select = -c(Theft,
+                                Theft.of.a.motorized.land.vehicle,
+                                Burglary,
+                                Burglary.of.private.residential.premises))
+str(crime2019)
+```
+
+__Observations:__ Removed all non required or non consistent data for unbiased data analysis for each country.
+
+
+Adding new column that holds total of all offences record countrywise.
+```{r datamanip2}
+crime2019$TotalOffence <- rowSums(crime2019, na.rm = FALSE)
+```
+__Observations:__
+New Column TotalOffence holds total per hundred thousand inhabitants for different countries. If any record value is NA then sum would NA.
+
+Next, checking if there are any missing data and printing them.
+```{r datamanip3}
+checkNA <- crime2019[!complete.cases(crime2019), ]
+rownames(checkNA)
+
+#alternative method
+# checkNA <- apply(crime2019, 1, function(x) any(is.na(x)))
+# rownames(crime2019)[checkNA]
+```
+__Observations:__ There are 22 records of countries where there is missing information.
+
+Removing missing data
+```{r datamanip4}
+crime2019 <- crime2019[complete.cases(crime2019), ]
+str(crime2019)
+
+#alternative
+# crime2 <- crime2019[checkNA != 1, ]
+# str(crime2)
+```
+
+```{r}
+dim(crime2019)
+```
+__Observations:__ New Data has 19 observations (rows) and 10 variables (columns).
+
+### Analysis Task
+Find 3 most common crimes in Ireland country
+```{r ana1, warning=FALSE}
+# select the row containing data for Ireland and remove the last column which contains the Total
+Ireland <- crime2019["Ireland", -ncol(crime2019)]
+# sort the crimes in Ireland in decreasing order
+Ireland <- sort(Ireland, decreasing = TRUE)
+# select the names of the top three crimes
+names(Ireland[1:3])
+
+#alternative
+#names(sort(crime2019["Ireland", -ncol(crime2019)], decreasing = TRUE)[1:3])
+```
+
+__Observations:__ Highest amount of offenses in Ireland are Unlawful acts involving controlled drugs or precursors, Assault,Sexual.violence.
+
+
+Finding Specifics of certain crime offenses.
+```{r ana2}
+crime2019["Ireland",]$Assault / crime2019["Ireland",]$Total
+```
+
+__Observations:__ Proportion of Assault in total offenses of Ireland is 0.1472716
+
+
+
+```{r ana3}
+rownames(crime2019)[which.max(crime2019$Kidnapping)]
+```
+
+Germany is the country with the highest record of kidnapping amongst all countries recorded.
+
+```{r ana4}
+rownames(crime2019)[which.min(crime2019$Total)]
+```
+Romania is the country with the lowest overall record of offences.
+
+```{r ana5}
+plot(crime2019$Robbery,
+     crime2019$Unlawful.acts.involving.controlled.drugs.or.precursors,
+     xlab = "Robbery",
+     ylab = "Unlawful acts involving controlled drugs or precursors",
+     pch = 15, col = "blue", ylim = c(0,1000))
+
+```
+
+
+
+__Observations:__ This scatter plot shows a strong positive correlation between the number of unlawful acts involving controlled drugs or precursors and the number of robberies. The graph shows that as the number of unlawful acts involving controlled drugs or precursors increases, so does the number of robberies. The graph also shows that there are a few outliers, which are data points that fall far from the trendline. 
+
+### Creativity Task
+
+```{r viz1}
+ggpairs(crime2019, columns=(5:10))
+```
+ __Observations:__ The graph shows the correlation between the number of cases of sexual violence and other crimes. The correlation between sexual violence and other crimes is high, with a correlation coefficient of 0.910 for rape, 0.949 for sexual assault, 0.831 for robbery, and 0.825 for total offenses.
+
+This means that as the number of cases of sexual violence increases, so does the number of cases of other crimes. The graph also shows that there is a strong correlation between the different types of sexual violence. such as the correlation between rape and sexual assault is 0.963. This means that the two crimes are often committed together.This information could be useful for law enforcement agencies when developing strategies to combat sexual violence and other crimes. 
+
+```{r viz2}
+plot(crime2019$Sexual.violence,crime2019$Sexual.assault, xlab="Violence ",     ylab="Assault",type="p")
+title("Sexual Crimes data collected")
+```
+
+
+ __Observations:__ 
+The scatter plot shows the relationship between the number of sexual crimes committed and the number of violence committed. There is a positive correlation between sexual crimes and violence crimes. This means that as the number of sexual crimes increases, so does the number of violence crimes. 
+ 

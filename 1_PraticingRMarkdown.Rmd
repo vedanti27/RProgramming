@@ -1,0 +1,32 @@
+---
+title: "Praticing basics of R Markdown"
+author: 'Vedanti Borate'
+output: html_document
+---
+
+## Loading package
+```{r loadLib}
+library(MASS)
+
+```
+
+## Review Data
+```{r knowdata}
+
+summary(shrimp)
+head(shrimp)
+shrimp
+
+```
+Shrimp is a collection of numeric vector with 18 determinations by different laboratories.
+It displays percentage of the declared total weight of shrimp in shrimp cocktails.
+
+## Data Visualizations
+```{r histplot}
+
+hist(shrimp,
+xlab = "Percentage of shrimp in shrimp cocktail")
+
+```
+
+Above plot shows the distribution of the percentage of shrimp in 16 shrimp cocktails. The most common percentage of shrimp is between 30% and 35%, but there is a variation in the percentage of shrimp across different shrimp cocktails.
