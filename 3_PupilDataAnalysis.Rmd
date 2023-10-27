@@ -1,0 +1,261 @@
+---
+title: "Substance use and sporting behaviour of pupils Analysis"
+author: 'Author : Vedanti Borate'
+output:
+  html_document:
+          theme:
+              bootswatch: "minty"
+---
+
+# Data Loading and Cleaning
+### Loading Data
+```{r loading}
+#set path 
+  setwd("~/Documents/GitCodes/RProgramming")      
+#read txt file as table 
+   s50 <- read.table("3_s50_1995.txt", header = TRUE)
+ 
+  
+```
+### Factoring Dataset
+```{r fact}
+
+# factoring and labeling to make s50 more readable
+  
+s50$alcohol <-
+  factor(
+    s50$alcohol,
+    ordered = TRUE,
+    levels = 1:5,
+    labels = c(
+      "not",
+      "once or twice a year",
+      "once a month",
+      "once a week",
+      "more than once a week"
+    )
+  )
+s50$drugs <-
+  factor(
+    s50$drugs,
+    ordered = TRUE,
+    levels = 1:4,
+    labels = c("not", "tried once", "occasional", "regular")
+  )
+s50$smoke <-
+  factor(
+    s50$smoke,
+    ordered = TRUE,
+    levels = 1:3,
+    labels = c("not", "occasional", "regular")
+  )
+s50$sport <-
+  factor(
+    s50$sport,
+    ordered = TRUE,
+    levels = 1:2,
+    labels = c("not regular", "regular")
+  )
+```
+
+##### Review Dataset structure
+```{r structure1}
+#checking the structure of dataset 
+str(s50)
+```
+
+##### Modified Dataset
+```{r review1}
+#review data with labelled information
+head(s50,10)
+```
+
+## Data Visualization
+
+###### __Observations:__
+###### Plots are taken in 1995 for collecting pupils data.By looking at both the plots we can see that there are max 50 students. They are divided into different categories of smoking and playing sports regularity. Both the graphs are not exactly related as there are other factors as well in the dataset. 
+
+###### First graph is of Students smoking status. We can see that maximum students do not smoke and there are few who smoke occassional. 
+
+###### Alongside the graph, there is another graph relating to students who pratice sports. Students who pratice regular are more than non regular once.
+
+###### We can’t establish any relationship between these two variables based on these two plots.
+
+
+```{r plots1}
+#Set figure margins:
+  par(mfrow=c(1, 2),   #No of rows and cols in graphic area
+  mar=c(5, 4, 2.5, 4)) # 4 sides margins
+# Create first barplot:
+  barplot(height=table(s50$smoke),    #create freq table and plot that
+          ylab='Number of Teens',
+          main='Smoking',
+          col=1:3,                   #default colors for bars
+          las=2)                     # labels, parallel to x axis
+  
+  # Create second plot:
+  barplot(height=table(s50$sport),
+          ylab='Number of Teens',
+          main='Sport',
+          col=1:3,
+          las=2)
+```
+
+
+## Statistical Analysis
+
+```{r smokeprop}
+Psmoke = sum(table(s50$smoke)[c("occasional", "regular")])/nrow(s50)
+
+```
+##### The proportion of pupils who smoke at least occasionally is __`r Psmoke`__.
+
+
+
+
+
+```{r smokeandpraticeprop}
+
+smokeandpratice = sum(s50$sport=='regular' & s50$smoke!="not") / nrow(s50)
+
+```
+##### The proportion of pupils who smoke at least occasionally and regularly practiced sport is __`r smokeandpratice`__ .
+
+
+```{r class1}
+summary.s50survey <- function(obj)
+  {
+  names <- names(obj)                            #names of variables in survey
+  list <- vector("list", length = length(names)) #empty list of same length as obj
+  names(list) <- names                           #list now has same names as obj
+  for(i in 1:length(list))
+    {                               #loop creating proportions and adding to list
+    list[[i]] <- table(obj[[i]])/length(obj[[i]])
+     }
+  return(list)                                  #output of summary function
+  }
+
+summary(s50)
+
+```
+##### __Observations:__ Here we find a summary of data which explains the count of each variable against the total count of pupils(or number of records in dataset).We create a class, mention a summary function for it and then we can call the print method for it.
+
+
+##### Below are the Proportion wise details of data.
+
+```{r class2}
+# Assign the class 's50survey':
+  class(s50) <- "s50survey"
+# Write the summary method:
+  summary.s50survey <- function(x){
+    lapply(x, function(y) table(y, dnn = NULL) / length(y))
+    }
+# Test the method on the class instance:
+  summary(s50)
+```
+
+##### Depending on the above proportions summary we find specifics.
+```{r drugsprop}
+Pdrugs = summary(s50)$drugs["not"]
+```
+
+#### Proportion of pupils who do not take cannabis __`r Pdrugs`__.
+
+## Loading Data for 1997 and following same analysis
+```{r loading1997 }
+#load new dataset for 1997 year
+  s70 <- read.table("3_s50_1997.txt", header = TRUE)
+```
+#### Factoring Dataset
+```{r factor1997}
+# factoring and labeling to make s50 more readable
+  
+s70$alcohol <-
+  factor(
+    s70$alcohol,
+    ordered = TRUE,
+    levels = 1:5,
+    labels = c(
+      "not",
+      "once or twice a year",
+      "once a month",
+      "once a week",
+      "more than once a week"
+    )
+  )
+s50$drugs <-
+  factor(
+    s50$drugs,
+    ordered = TRUE,
+    levels = 1:4,
+    labels = c("not", "tried once", "occasional", "regular")
+  )
+s70$smoke <-
+  factor(
+    s70$smoke,
+    ordered = TRUE,
+    levels = 1:3,
+    labels = c("not", "occasional", "regular")
+  )
+s70$sport <-
+  factor(
+    s70$sport,
+    ordered = TRUE,
+    levels = 1:2,
+    labels = c("not regular", "regular")
+  )
+```
+
+##### Review Dataset structure
+```{r structure2}
+#check structure
+str(s70)
+```
+##### 1997_pupildata_proportions
+
+```{r class1997_1}
+# Assign the class 's50survey':
+  class(s70) <- "s50survey"
+# Write the summary method:
+  summary.s70survey <- function(x){
+    lapply(x, function(y) table(y, dnn = NULL) / length(y))
+    }
+# Test the method on the class instance:
+  summary(s70)
+```
+
+##### Comparing Data
+
+
+```{r}
+# Finding the proportion in 1997:
+summary(s70)$sport["regular"]
+
+# And the proportion from 1995:
+summary(s50)$sport["regular"]
+
+```
+
+##### __Observations:__From the data in both the years, we can see that students __practicing sports regularly decreased__ in 1997 then in 1995.
+##### Proportion of sports students__ (1995): 0.74__
+##### Proportion of sports students__ (1997): 0.38__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
